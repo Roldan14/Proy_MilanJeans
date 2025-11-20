@@ -20,6 +20,7 @@ if ($is_edit) {
 }
 
 // Procesar formulario
+// Procesar formulario
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $titulo = sanitize($_POST['titulo']);
     $subtitulo = sanitize($_POST['subtitulo'] ?? '');
@@ -31,6 +32,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $activo = isset($_POST['activo']) ? 1 : 0;
     $fecha_inicio = $_POST['fecha_inicio'] ?: null;
     $fecha_fin = $_POST['fecha_fin'] ?: null;
+    $posicion_texto = $_POST['posicion_texto'] ?? 'centro-centro';
+    $mostrar_contenido = isset($_POST['mostrar_contenido']) ? 1 : 0;
     
     try {
         // Subir imagen si existe
@@ -56,13 +59,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 UPDATE banners SET 
                 titulo = ?, subtitulo = ?, descripcion = ?, imagen = ?, 
                 enlace = ?, texto_boton = ?, posicion = ?, orden = ?, activo = ?,
-                fecha_inicio = ?, fecha_fin = ?
+                fecha_inicio = ?, fecha_fin = ?, posicion_texto = ?, mostrar_contenido = ?
                 WHERE id = ?
             ");
             $stmt->execute([
                 $titulo, $subtitulo, $descripcion, $imagen_path,
                 $enlace, $texto_boton, $posicion, $orden, $activo,
-                $fecha_inicio, $fecha_fin, $id
+                $fecha_inicio, $fecha_fin, $posicion_texto, $mostrar_contenido, $id
             ]);
             
             $_SESSION['success'] = "Banner actualizado correctamente";
@@ -74,13 +77,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             
             $stmt = $pdo->prepare("
                 INSERT INTO banners 
-                (titulo, subtitulo, descripcion, imagen, enlace, texto_boton, posicion, orden, activo, fecha_inicio, fecha_fin)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                (titulo, subtitulo, descripcion, imagen, enlace, texto_boton, posicion, orden, activo, fecha_inicio, fecha_fin, posicion_texto, mostrar_contenido)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ");
             $stmt->execute([
                 $titulo, $subtitulo, $descripcion, $imagen_path,
                 $enlace, $texto_boton, $posicion, $orden, $activo,
-                $fecha_inicio, $fecha_fin
+                $fecha_inicio, $fecha_fin, $posicion_texto, $mostrar_contenido
             ]);
             
             $_SESSION['success'] = "Banner creado correctamente";
@@ -251,12 +254,80 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             color: #856404;
             margin: 0;
         }
-        
+
+        .position-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .position-option {
+           cursor: pointer;
+        }
+
+        .position-option input[type="radio"] {
+           display: none;
+        }
+
+        .position-box {
+          border: 2px solid #e0e0e0;
+          border-radius: 8px;
+          padding: 15px 10px;
+          text-align: center;
+          transition: all 0.3s;
+          background: white;
+          display: flex;
+          flex-direction: column;
+          gap: 5px;
+          min-height: 80px;
+          justify-content: center;
+        }
+
+        .position-option:hover .position-box {
+          border-color: var(--primary);
+          background: var(--light);
+        }
+
+        .position-option input[type="radio"]:checked + .position-box {
+          border-color: var(--primary);
+          background: var(--primary);
+          color: white;
+        }
+
+        .pos-h {
+          font-weight: 700;
+          font-size: 13px;
+        }
+
+        .pos-v {
+          font-size: 11px;
+          opacity: 0.8;
+        }
+
         @media (max-width: 768px) {
-            .form-row {
-                grid-template-columns: 1fr;
+          .form-row {
+              grid-template-columns: 1fr;
+            }
+          .position-grid {
+              grid-template-columns: repeat(3, 1fr);
+              gap: 8px;
+            }
+    
+            .position-box {
+              padding: 10px 5px;
+              min-height: 60px;
+            }
+    
+           .pos-h {
+               font-size: 11px;
+            }
+    
+           .pos-v {
+              font-size: 9px;
             }
         }
+
     </style>
 </head>
 <body>
@@ -332,20 +403,61 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </div>
                 
                 <div class="form-section">
-                    <h3>Enlace y Botón</h3>
-                    
+                     <h3>Configuración de Contenido</h3>
+    
                     <div class="form-group">
-                        <label>Enlace (URL)</label>
-                        <input type="text" name="enlace" value="<?= htmlspecialchars($banner['enlace'] ?? '') ?>" placeholder="productos.php?categoria=1">
-                        <small>Página a la que llevará el banner al hacer clic</small>
+                       <div class="checkbox-item">
+                           <input type="checkbox" name="mostrar_contenido" id="mostrar_contenido" 
+                           <?= ($banner['mostrar_contenido'] ?? 1) ? 'checked' : '' ?>
+                           onchange="toggleContenido()">
+                          <label for="mostrar_contenido" style="margin: 0; font-weight: normal;">
+                              Mostrar texto sobre la imagen (desmarcar para banner solo con imagen)
+                          </label>
+                        </div>
                     </div>
-                    
-                    <div class="form-group">
-                        <label>Texto del Botón</label>
-                        <input type="text" name="texto_boton" value="<?= htmlspecialchars($banner['texto_boton'] ?? '') ?>" placeholder="Ver Colección">
-                        <small>Texto que aparecerá en el botón (opcional)</small>
-                    </div>
+    
+                   <div id="contenidoSection" style="<?= ($banner['mostrar_contenido'] ?? 1) ? '' : 'display: none;' ?>">
+                       <div class="form-group">
+                           <label>Posición del Contenido <span class="required">*</span></label>
+                           <div class="position-grid">
+                              <?php
+                                  $posiciones = [
+                                 'izquierda-arriba' => ['Izquierda', 'Arriba'],
+                                 'centro-arriba' => ['Centro', 'Arriba'],
+                                 'derecha-arriba' => ['Derecha', 'Arriba'],
+                                 'izquierda-centro' => ['Izquierda', 'Centro'],
+                                 'centro-centro' => ['Centro', 'Centro'],
+                                 'derecha-centro' => ['Derecha', 'Centro'],
+                                 'izquierda-abajo' => ['Izquierda', 'Abajo'],
+                                 'centro-abajo' => ['Centro', 'Abajo'],
+                                 'derecha-abajo' => ['Derecha', 'Abajo'],
+                                ];
+                
+                                 $posicion_actual = $banner['posicion_texto'] ?? 'centro-centro';
+                
+                                foreach ($posiciones as $valor => $labels):
+                                ?>
+                                <label class="position-option">
+                                   <input type="radio" name="posicion_texto" value="<?= $valor ?>" 
+                                   <?= $posicion_actual == $valor ? 'checked' : '' ?>>
+                                   <div class="position-box">
+                                     <span class="pos-h"><?= $labels[0] ?></span>
+                                     <span class="pos-v"><?= $labels[1] ?></span>
+                                   </div>
+                                </label>
+                                <?php endforeach; ?>
+                           </div>
+                           <small>Selecciona dónde quieres que aparezca el texto sobre la imagen</small>
+                       </div>
+        
+                      <div class="form-group">
+                           <label>Enlace (URL)</label>
+                           <input type="text" name="enlace" value="<?= htmlspecialchars($banner['enlace'] ?? '') ?>" placeholder="productos.php?categoria=1">
+                           <small>Página a la que llevará el banner al hacer clic</small>
+                       </div>
+                  </div>
                 </div>
+
                 
                 <div class="form-section">
                     <h3>Configuración</h3>
@@ -446,6 +558,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 previewImage({ target: { files: files } });
             }
         });
+        
+        function toggleContenido() {
+    const checkbox = document.getElementById('mostrar_contenido');
+    const section = document.getElementById('contenidoSection');
+    
+    if (checkbox.checked) {
+        section.style.display = 'block';
+    } else {
+        section.style.display = 'none';
+    }
+}
+
     </script>
 </body>
 </html>

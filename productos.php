@@ -277,7 +277,7 @@ include 'includes/header.php';
     .price-inputs input {
         padding: 8px 12px;
         border: 2px solid var(--border);
-        border-radius: 5px;
+        border-radius: 3px;
         font-size: 13px;
         width: 7rem;
     }
@@ -288,7 +288,7 @@ include 'includes/header.php';
         background: var(--primary);
         color: var(--white);
         border: none;
-        border-radius: 8px;
+        border-radius: 3px;
         font-weight: 600;
         cursor: pointer;
         margin-top: 15px;
@@ -361,7 +361,7 @@ include 'includes/header.php';
     
     .product-card {
         background: var(--white);
-        border-radius: 12px;
+        border-radius: 2px;
         overflow: hidden;
         transition: all 0.3s;
         box-shadow: 0 2px 10px rgba(0,0,0,0.05);
@@ -450,7 +450,6 @@ include 'includes/header.php';
         display: flex;
         align-items: center;
         gap: 6px;
-        margin-bottom: 10px;
     }
     
     .price-current {
@@ -463,26 +462,6 @@ include 'includes/header.php';
         font-size: 13px;
         color: var(--text-light);
         text-decoration: line-through;
-    }
-    
-    .btn-view {
-        width: 100%;
-        padding: 10px;
-        background: var(--secondary);
-        color: var(--white);
-        border: none;
-        border-radius: 6px;
-        font-weight: 600;
-        font-size: 13px;
-        cursor: pointer;
-        text-decoration: none;
-        display: block;
-        text-align: center;
-        transition: all 0.3s;
-    }
-    
-    .btn-view:hover {
-        background: var(--primary);
     }
     
     /* Pagination */
@@ -596,17 +575,10 @@ include 'includes/header.php';
 </style>
 
 <!-- Breadcrumb -->
-<div class="breadcrumb">
-    <div class="breadcrumb-content">
-        <a href="index.php">Inicio</a>
-        <span>›</span>
-        <span class="breadcrumb-current">Productos</span>
-    </div>
-</div>
+
 
 <div class="productos-page">
     <div class="page-header-productos">
-        <h1>Nuestros Productos</h1>
         <?php if ($search): ?>
             <p style="color: var(--text-gray);">Resultados para: <strong>"<?= htmlspecialchars($search) ?>"</strong></p>
         <?php endif; ?>
@@ -761,7 +733,6 @@ include 'includes/header.php';
                                         <span class="price-old"><?= formatPrice($producto['precio']) ?></span>
                                     <?php endif; ?>
                                 </div>
-                                <a href="producto.php?id=<?= $producto['id'] ?>" class="btn-view">Ver Producto</a>
                             </div>
                         </div>
                     <?php endforeach; ?>

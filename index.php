@@ -56,150 +56,238 @@ include 'includes/header.php';
 ?>
 
 <style>
-    /* Hero Slider */
-    .hero-slider {
-        position: relative;
-        height: 600px;
-        overflow: hidden;
-        background: var(--secondary);
-    }
-    
-    .slide {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
+   /* Hero Slider */
+.hero-slider {
+    position: relative;
+    height: 750px;
+    overflow: hidden;
+    background: var(--secondary);
+}
+
+.slide {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    transition: opacity 1s ease-in-out;
+}
+
+.slide.active {
+    opacity: 1;
+}
+
+.slide-link {
+    display: block;
+    width: 100%;
+    height: 100%;
+    position: relative;
+    text-decoration: none;
+}
+
+.slide-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.slide-content {
+    position: absolute;
+    color: var(--white);
+    max-width: 600px;
+    padding: 40px;
+    animation: slideUp 0.8s ease-out;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    z-index: 1;
+}
+
+/* Posiciones Horizontales */
+.slide-content.position-izquierda-arriba,
+.slide-content.position-izquierda-centro,
+.slide-content.position-izquierda-abajo {
+    left: 5%;
+    text-align: left;
+}
+
+.slide-content.position-centro-arriba,
+.slide-content.position-centro-centro,
+.slide-content.position-centro-abajo {
+    left: 50%;
+    transform: translateX(-50%);
+    text-align: center;
+}
+
+.slide-content.position-derecha-arriba,
+.slide-content.position-derecha-centro,
+.slide-content.position-derecha-abajo {
+    right: 5%;
+    text-align: right;
+}
+
+/* Posiciones Verticales */
+.slide-content.position-izquierda-arriba,
+.slide-content.position-centro-arriba,
+.slide-content.position-derecha-arriba {
+    top: 10%;
+}
+
+.slide-content.position-izquierda-centro,
+.slide-content.position-centro-centro,
+.slide-content.position-derecha-centro {
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.slide-content.position-centro-centro {
+    transform: translate(-50%, -50%);
+}
+
+.slide-content.position-izquierda-abajo,
+.slide-content.position-centro-abajo,
+.slide-content.position-derecha-abajo {
+    bottom: 10%;
+    top: auto;
+}
+
+@keyframes slideUp {
+    from {
         opacity: 0;
-        transition: opacity 1s ease-in-out;
+        transform: translateY(30px);
     }
-    
-    .slide.active {
+    to {
         opacity: 1;
+        transform: translateY(0);
     }
-    
-    .slide-image {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
+}
+
+.slide-content h1 {
+    font-size: 40px;
+    font-weight: 900;
+    margin-bottom: 5px;
+    text-shadow: 2px 2px 8px rgba(0,0,0,0.5);
+    line-height: 1.1;
+}
+
+.slide-content h2 {
+    font-size: 18px;
+    font-weight: 400;
+    margin-bottom: 7px;
+    text-shadow: 1px 1px 4px rgba(0,0,0,0.5);
+}
+
+.slide-content p {
+    font-size: 10px;
+    margin-bottom: 25px;
+    text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
+    line-height: 1.6;
+}
+
+
+
+.slider-controls {
+    position: absolute;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 10px;
+    z-index: 10;
+}
+
+.slider-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.5);
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.slider-dot.active {
+    background: var(--primary);
+    width: 40px;
+    border-radius: 6px;
+}
+
+.slider-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(255,255,255,0.2);
+    color: var(--white);
+    border: none;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.3s;
+    backdrop-filter: blur(10px);
+    z-index: 10;
+}
+
+.slider-arrow:hover {
+    background: var(--primary);
+}
+
+.slider-arrow.prev {
+    left: 30px;
+}
+
+.slider-arrow.next {
+    right: 30px;
+}
+
+/* Responsive */
+@media (max-width: 968px) {
+    .hero-slider {
+        height: 400px;
     }
     
     .slide-content {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        text-align: center;
-        color: var(--white);
-        max-width: 800px;
+        max-width: 90%;
         padding: 20px;
-        animation: slideUp 0.8s ease-out;
-    }
-    
-    @keyframes slideUp {
-        from {
-            opacity: 0;
-            transform: translate(-50%, -40%);
-        }
-        to {
-            opacity: 1;
-            transform: translate(-50%, -50%);
-        }
     }
     
     .slide-content h1 {
-        font-size: 64px;
-        font-weight: 900;
-        margin-bottom: 15px;
-        text-shadow: 2px 2px 10px rgba(0,0,0,0.3);
-        line-height: 1.1;
+        font-size: 32px;
     }
     
     .slide-content h2 {
-        font-size: 28px;
-        font-weight: 400;
-        margin-bottom: 20px;
-        text-shadow: 1px 1px 5px rgba(0,0,0,0.3);
+        font-size: 18px;
     }
     
     .slide-content p {
-        font-size: 18px;
-        margin-bottom: 30px;
-        text-shadow: 1px 1px 5px rgba(0,0,0,0.3);
+        font-size: 14px;
     }
     
-    .btn-hero {
-        display: inline-block;
-        padding: 18px 40px;
-        background: var(--primary);
-        color: var(--white);
-        text-decoration: none;
-        border-radius: 50px;
-        font-weight: 700;
-        font-size: 16px;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        transition: all 0.3s;
-        box-shadow: 0 10px 30px rgba(220, 20, 60, 0.3);
-    }
-    
-    .btn-hero:hover {
-        background: var(--primary-dark);
-        transform: translateY(-3px);
-        box-shadow: 0 15px 40px rgba(220, 20, 60, 0.4);
-    }
-    
-    .slider-controls {
-        position: absolute;
-        bottom: 30px;
+    .slide-content.position-centro-arriba,
+    .slide-content.position-centro-centro,
+    .slide-content.position-centro-abajo {
         left: 50%;
-        transform: translateX(-50%);
-        display: flex;
-        gap: 10px;
-        z-index: 10;
+        right: auto;
     }
     
-    .slider-dot {
-        width: 12px;
-        height: 12px;
-        border-radius: 50%;
-        background: rgba(255,255,255,0.5);
-        cursor: pointer;
-        transition: all 0.3s;
-    }
-    
-    .slider-dot.active {
-        background: var(--primary);
-        width: 40px;
-        border-radius: 6px;
+    .slide-button.position-centro-arriba,
+    .slide-button.position-centro-centro,
+    .slide-button.position-centro-abajo {
+        left: 50%;
+        right: auto;
     }
     
     .slider-arrow {
-        position: absolute;
-        top: 50%;
-        transform: translateY(-50%);
-        background: rgba(255,255,255,0.2);
-        color: var(--white);
-        border: none;
-        width: 50px;
-        height: 50px;
-        border-radius: 50%;
-        cursor: pointer;
-        transition: all 0.3s;
-        backdrop-filter: blur(10px);
-    }
-    
-    .slider-arrow:hover {
-        background: var(--primary);
+        width: 40px;
+        height: 40px;
     }
     
     .slider-arrow.prev {
-        left: 30px;
+        left: 15px;
     }
     
     .slider-arrow.next {
-        right: 30px;
+        right: 15px;
     }
+}
     
     /* Sections */
     .section {
@@ -315,11 +403,11 @@ include 'includes/header.php';
     
     .product-card {
         background: var(--white);
-        border-radius: 15px;
+        border-radius: 2px;
         overflow: hidden;
         transition: all 0.3s;
         position: relative;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        box-shadow: 0 2px 10px rgba(150, 150, 150, 0.05);
     }
     
     .product-card:hover {
@@ -396,7 +484,6 @@ include 'includes/header.php';
         display: flex;
         align-items: center;
         gap: 10px;
-        margin-bottom: 15px;
     }
     
     .price-current {
@@ -411,32 +498,14 @@ include 'includes/header.php';
         text-decoration: line-through;
     }
     
-    .btn-add-cart {
-        width: 100%;
-        padding: 12px;
-        background: var(--secondary);
-        color: var(--white);
-        text-decoration: none;
-        border: none;
-        border-radius: 8px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.3s;
-    }
-    
-    .btn-add-cart:hover {
-        background: var(--primary);
-        transform: translateY(-2px);
-    }
-    
     /* View More Button */
     .btn-view-more {
         display: inline-block;
-        padding: 15px 40px;
+        padding: 10px 30px;
         background: var(--white);
         color: var(--primary);
         text-decoration: none;
-        border-radius: 50px;
+        border-radius: 10px;
         font-weight: 700;
         border: 2px solid var(--primary);
         transition: all 0.3s;
@@ -519,21 +588,34 @@ include 'includes/header.php';
 <section class="hero-slider">
     <?php foreach ($banners as $index => $banner): ?>
         <div class="slide <?= $index === 0 ? 'active' : '' ?>">
+            <?php if ($banner['enlace']): ?>
+                <a href="<?= htmlspecialchars($banner['enlace']) ?>" class="slide-link">
+            <?php endif; ?>
+            
             <img src="<?= UPLOAD_URL . $banner['imagen'] ?>" alt="<?= htmlspecialchars($banner['titulo']) ?>" class="slide-image">
-            <div class="slide-content">
-                <h1><?= htmlspecialchars($banner['titulo']) ?></h1>
-                <?php if ($banner['subtitulo']): ?>
-                    <h2><?= htmlspecialchars($banner['subtitulo']) ?></h2>
-                <?php endif; ?>
-                <?php if ($banner['descripcion']): ?>
-                    <p><?= htmlspecialchars($banner['descripcion']) ?></p>
-                <?php endif; ?>
-                <?php if ($banner['enlace'] && $banner['texto_boton']): ?>
-                    <a href="<?= htmlspecialchars($banner['enlace']) ?>" class="btn-hero">
-                        <?= htmlspecialchars($banner['texto_boton']) ?>
-                    </a>
-                <?php endif; ?>
-            </div>
+            
+            <?php if ($banner['mostrar_contenido']): ?>
+                <div class="slide-content position-<?= $banner['posicion_texto'] ?>">
+                    <?php if ($banner['titulo']): ?>
+                        <h1><?= htmlspecialchars($banner['titulo']) ?></h1>
+                    <?php endif; ?>
+                    
+                    <?php if ($banner['subtitulo']): ?>
+                        <h2><?= htmlspecialchars($banner['subtitulo']) ?></h2>
+                    <?php endif; ?>
+                    
+                    <?php if ($banner['descripcion']): ?>
+                        <p><?= htmlspecialchars($banner['descripcion']) ?></p>
+                    <?php endif; ?>
+                    
+                </div>
+            <?php endif; ?>
+            
+           
+            
+            <?php if ($banner['enlace']): ?>
+                </a>
+            <?php endif; ?>
         </div>
     <?php endforeach; ?>
     
@@ -618,7 +700,6 @@ include 'includes/header.php';
                                 <span class="price-old"><?= formatPrice($producto['precio']) ?></span>
                             <?php endif; ?>
                         </div>
-                        <a href="producto.php?id=<?= $producto['id'] ?>" class="btn-add-cart">Ver Producto</a>
                     </div>
                 </div>
             <?php endforeach; ?>

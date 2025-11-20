@@ -140,12 +140,13 @@ include 'includes/header.php';
     .thumb {
         width: 80px;
         height: 100px;
-        border-radius: 6px;
+        border-radius: 3px;
         overflow: hidden;
         cursor: pointer;
         border: 2px solid transparent;
         transition: all 0.3s;
         background: var(--bg-light);
+        
     }
     
     .thumb:hover {
@@ -160,12 +161,12 @@ include 'includes/header.php';
         width: 100%;
         height: 100%;
         object-fit: cover;
+        
     }
     
     .imagen-principal {
         width: 450px;
         height: 580px;
-        border-radius: 12px;
         overflow: hidden;
         background: var(--bg-light);
         position: relative;
@@ -450,116 +451,250 @@ include 'includes/header.php';
         height: 16px;
     }
     
-    /* Productos Relacionados */
-    .relacionados-section {
-        margin-top: 80px;
-    }
-    
-    .relacionados-section h2 {
-        font-size: 32px;
-        font-weight: 900;
-        color: var(--text-dark);
-        margin-bottom: 40px;
-        text-align: center;
-    }
-    
-    .productos-grid {
-        display: grid;
-        grid-template-columns: repeat(4, 1fr);
+/* Productos Relacionados */
+.relacionados-section {
+    margin-top: 80px;
+    max-width: 1400px;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 0 20px;
+}
+
+.section-header-productos {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.section-header-productos h2 {
+    font-size: 25px;
+    font-weight: 800;
+    color: var(--text-dark);
+    margin: 0;
+}
+
+.carousel-controls {
+    display: flex;
+    gap: 10px;
+}
+
+.carousel-btn {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    border: 2px solid var(--border);
+    background: var(--white);
+    color: var(--text-dark);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s;
+}
+
+.carousel-btn:hover {
+    background: var(--primary);
+    color: var(--white);
+    border-color: var(--primary);
+    transform: scale(1.1);
+}
+
+.carousel-btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+.carousel-btn:disabled:hover {
+    background: var(--white);
+    color: var(--text-dark);
+    transform: scale(1);
+}
+
+.productos-carousel-wrapper {
+    overflow: hidden;
+    position: relative;
+}
+
+.productos-carousel {
+    display: flex;
+    gap: 20px;
+    overflow-x: auto;
+    scroll-behavior: smooth;
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE/Edge */
+    padding: 5px;
+}
+
+.productos-carousel::-webkit-scrollbar {
+    display: none; /* Chrome/Safari/Opera */
+}
+
+.product-card {
+    min-width: 280px;
+    max-width: 280px;
+    background: var(--white);
+    border-radius: 12px;
+    overflow: hidden;
+    transition: all 0.3s;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    flex-shrink: 0;
+}
+
+.product-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+}
+
+.product-image-wrapper {
+    position: relative;
+    padding-top: 130%;
+    overflow: hidden;
+    background: var(--bg-light);
+}
+
+.product-image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s;
+}
+
+.product-card:hover .product-image {
+    transform: scale(1.08);
+}
+
+/* Overlay oscuro al hacer hover */
+.product-image-wrapper::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.4);
+    opacity: 0;
+    transition: opacity 0.3s;
+    z-index: 1;
+}
+
+.product-card:hover .product-image-wrapper::after {
+    opacity: 1;
+}
+
+.product-info {
+    padding: 15px;
+}
+
+.product-name {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-dark);
+    margin-bottom: 10px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    min-height: 42px;
+    line-height: 1.4;
+}
+
+.product-price {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 0;
+}
+
+.price-current {
+    font-size: 20px;
+    font-weight: 900;
+    color: var(--primary);
+}
+
+.price-old {
+    font-size: 14px;
+    color: var(--text-light);
+    text-decoration: line-through;
+}
+
+.btn-view {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 12px 25px;
+    background: black;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    text-decoration: none;
+    display: block;
+    text-align: center;
+    transition: all 0.3s;
+    opacity: 0;
+    visibility: hidden;
+    z-index: 2;
+    white-space: nowrap;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+
+.product-card:hover .btn-view {
+    opacity: 1;
+    visibility: visible;
+    transform: translate(-50%, -50%) scale(1);
+}
+
+.btn-view:hover {
+    background: var(--primary);
+    color: var(--white);
+    transform: translate(-50%, -50%) scale(1.05);
+    box-shadow: 0 6px 20px rgba(220, 20, 60, 0.4);
+}
+
+/* Responsive */
+@media (max-width: 968px) {
+    .section-header-productos {
+        flex-direction: column;
         gap: 20px;
+        align-items: flex-start;
+    }
+    
+    .section-header-productos h2 {
+        font-size: 24px;
+    }
+    
+    .carousel-controls {
+        align-self: flex-end;
     }
     
     .product-card {
-        background: var(--white);
-        border-radius: 12px;
-        overflow: hidden;
-        transition: all 0.3s;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        min-width: 220px;
+        max-width: 220px;
     }
-    
-    .product-card:hover {
-        transform: translateY(-8px);
-        box-shadow: 0 15px 35px rgba(0,0,0,0.15);
-    }
-    
-    .product-image-wrapper {
-        position: relative;
-        padding-top: 130%;
-        overflow: hidden;
-        background: var(--bg-light);
-    }
-    
-    .product-image {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        transition: transform 0.5s;
-    }
-    
-    .product-card:hover .product-image {
-        transform: scale(1.08);
-    }
-    
-    .product-info {
-        padding: 15px;
+}
+
+@media (max-width: 640px) {
+    .product-card {
+        min-width: 180px;
+        max-width: 180px;
     }
     
     .product-name {
-        font-size: 14px;
-        font-weight: 600;
-        color: var(--text-dark);
-        margin-bottom: 10px;
-        display: -webkit-box;
-        -webkit-line-clamp: 2;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-        min-height: 40px;
-    }
-    
-    .product-price {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        margin-bottom: 10px;
+        font-size: 13px;
+        min-height: 36px;
     }
     
     .price-current {
-        font-size: 20px;
-        font-weight: 900;
-        color: var(--primary);
+        font-size: 16px;
     }
-    
-    .btn-view {
-        width: 100%;
-        padding: 10px;
-        background: var(--secondary);
-        color: var(--white);
-        border: none;
-        border-radius: 6px;
-        font-weight: 600;
-        font-size: 13px;
-        cursor: pointer;
-        text-decoration: none;
-        display: block;
-        text-align: center;
-        transition: all 0.3s;
-    }
-    
-    .btn-view:hover {
-        background: var(--primary);
-    }
-    
-    .error-message {
-        background: #fee;
-        color: #c33;
-        padding: 12px 20px;
-        border-radius: 8px;
-        margin-bottom: 20px;
-        display: none;
-    }
+}
     
     /* Responsive */
     @media (max-width: 968px) {
@@ -616,19 +751,7 @@ include 'includes/header.php';
 </style>
 
 <!-- Breadcrumb -->
-<div class="breadcrumb">
-    <div class="breadcrumb-content">
-        <a href="index.php">Inicio</a>
-        <span>›</span>
-        <a href="productos.php">Productos</a>
-        <?php if ($producto['categoria_nombre']): ?>
-            <span>›</span>
-            <a href="productos.php?categoria=<?= $producto['categoria_id'] ?>"><?= htmlspecialchars($producto['categoria_nombre']) ?></a>
-        <?php endif; ?>
-        <span>›</span>
-        <span style="color: var(--primary); font-weight: 600;"><?= htmlspecialchars($producto['nombre']) ?></span>
-    </div>
-</div>
+
 
 <div class="producto-page">
     <div class="error-message" id="errorMessage"></div>
@@ -782,33 +905,58 @@ include 'includes/header.php';
     </div>
     
     <!-- Productos Relacionados -->
-    <?php if (!empty($productos_relacionados)): ?>
-        <div class="relacionados-section">
-            <h2>También te puede interesar</h2>
-            <div class="productos-grid">
-                <?php foreach ($productos_relacionados as $prod): ?>
-                    <div class="product-card">
-                        <div class="product-image-wrapper">
-                            <a href="producto.php?id=<?= $prod['id'] ?>">
-                                <img src="<?= $prod['imagen'] ? UPLOAD_URL . $prod['imagen'] : 'https://via.placeholder.com/300x400?text=Sin+Imagen' ?>" 
-                                     alt="<?= htmlspecialchars($prod['nombre']) ?>" 
-                                     class="product-image">
-                            </a>
-                        </div>
-                        <div class="product-info">
-                            <a href="producto.php?id=<?= $prod['id'] ?>" style="text-decoration: none;">
-                                <h3 class="product-name"><?= htmlspecialchars($prod['nombre']) ?></h3>
-                            </a>
-                            <div class="product-price">
-                                <span class="price-current"><?= formatPrice($prod['precio_oferta'] ?: $prod['precio']) ?></span>
-                            </div>
-                            <a href="producto.php?id=<?= $prod['id'] ?>" class="btn-view">Ver Producto</a>
+<?php if (!empty($productos_relacionados)): ?>
+<section class="relacionados-section">
+    <div class="section-header-productos">
+        <h2>También te puede interesar</h2>
+        <div class="carousel-controls">
+            <button class="carousel-btn prev" onclick="scrollCarousel('relacionados', -1)">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="15 18 9 12 15 6"/>
+                </svg>
+            </button>
+            <button class="carousel-btn next" onclick="scrollCarousel('relacionados', 1)">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="9 18 15 12 9 6"/>
+                </svg>
+            </button>
+        </div>
+    </div>
+    
+    <div class="productos-carousel-wrapper">
+        <div class="productos-carousel" id="carousel-relacionados">
+            <?php foreach ($productos_relacionados as $prod): ?>
+                <div class="product-card">
+                    <div class="product-image-wrapper">
+                        <a href="producto.php?id=<?= $prod['id'] ?>">
+                            <img src="<?= $prod['imagen'] ? UPLOAD_URL . $prod['imagen'] : 'https://via.placeholder.com/300x400?text=Sin+Imagen' ?>" 
+                                 alt="<?= htmlspecialchars($prod['nombre']) ?>" 
+                                 class="product-image">
+                        </a>
+                        
+                        <!-- Overlay oscuro al hacer hover -->
+                        <div class="product-image-wrapper::after"></div>
+                        
+                        <a href="producto.php?id=<?= $prod['id'] ?>" class="btn-view">Ver Producto</a>
+                    </div>
+                    <div class="product-info">
+                        <a href="producto.php?id=<?= $prod['id'] ?>" style="text-decoration: none;">
+                            <h3 class="product-name"><?= htmlspecialchars($prod['nombre']) ?></h3>
+                        </a>
+                        <div class="product-price">
+                            <span class="price-current"><?= formatPrice($prod['precio_oferta'] ?: $prod['precio']) ?></span>
+                            <?php if ($prod['precio_oferta']): ?>
+                                <span class="price-old"><?= formatPrice($prod['precio']) ?></span>
+                            <?php endif; ?>
                         </div>
                     </div>
-                <?php endforeach; ?>
-            </div>
+                </div>
+            <?php endforeach; ?>
         </div>
-    <?php endif; ?>
+    </div>
+</section>
+<?php endif; ?>
+
     
 </div>
 

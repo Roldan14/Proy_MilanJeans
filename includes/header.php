@@ -97,7 +97,7 @@
             margin: 0 auto;
             padding: 20px;
             display: grid;
-            grid-template-columns: 200px 1fr auto;
+            grid-template-columns: 200px 1fr 200px;
             gap: 40px;
             align-items: center;
         }
@@ -118,10 +118,12 @@
             width: auto;
         }
         
-        /* Search Bar */
+        /* Search Bar - Centrado */
         .search-bar {
             position: relative;
             max-width: 600px;
+            margin: 0 auto;
+            width: 100%;
         }
         
         .search-bar input {
@@ -162,11 +164,121 @@
             transform: translateY(-50%) scale(1.05);
         }
         
+        /* Search Results Dropdown */
+        .search-results {
+            position: absolute;
+            top: calc(100% + 10px);
+            left: 0;
+            right: 0;
+            background: var(--white);
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+            max-height: 500px;
+            overflow-y: auto;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.3s;
+            z-index: 1000;
+        }
+        
+        .search-results.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+        
+        .search-result-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 12px 20px;
+            text-decoration: none;
+            color: var(--text-dark);
+            transition: all 0.3s;
+            border-bottom: 1px solid var(--bg-light);
+        }
+        
+        .search-result-item:last-child {
+            border-bottom: none;
+        }
+        
+        .search-result-item:hover {
+            background: var(--bg-light);
+        }
+        
+        .search-result-img {
+            width: 60px;
+            height: 75px;
+            object-fit: cover;
+            border-radius: 8px;
+            background: var(--bg-light);
+            flex-shrink: 0;
+        }
+        
+        .search-result-info {
+            flex: 1;
+        }
+        
+        .search-result-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 4px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        
+        .search-result-price {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+        
+        .search-no-results {
+            padding: 30px 20px;
+            text-align: center;
+            color: var(--text-gray);
+        }
+        
+        .search-no-results svg {
+            width: 60px;
+            height: 60px;
+            margin-bottom: 15px;
+            color: var(--text-light);
+        }
+        
+        .search-loading {
+            padding: 20px;
+            text-align: center;
+            color: var(--text-gray);
+        }
+        
+        .search-view-all {
+            display: block;
+            padding: 15px 20px;
+            text-align: center;
+            background: var(--bg-light);
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+            border-radius: 0 0 15px 15px;
+            transition: all 0.3s;
+        }
+        
+        .search-view-all:hover {
+            background: var(--primary);
+            color: var(--white);
+        }
+        
         /* Header Actions */
         .header-actions {
             display: flex;
             gap: 20px;
             align-items: center;
+            justify-content: flex-end;
         }
         
         .header-icon {
@@ -353,7 +465,7 @@
             }
             
             .header-content {
-                grid-template-columns: 1fr auto auto;
+                grid-template-columns: auto 1fr auto;
                 gap: 15px;
             }
             
@@ -362,7 +474,7 @@
             }
             
             .search-bar {
-                display: none;
+                max-width: 100%;
             }
             
             .header-icon span {
@@ -379,6 +491,10 @@
             
             .mobile-menu {
                 display: block;
+            }
+            
+            .header-actions {
+                gap: 10px;
             }
         }
     </style>
@@ -437,15 +553,14 @@
             </a>
             
             <div class="search-bar">
-                <form action="productos.php" method="GET">
-                    <input type="text" name="search" placeholder="Buscar productos..." value="<?= $_GET['search'] ?? '' ?>">
-                    <button type="submit" class="search-btn">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <circle cx="11" cy="11" r="8"/>
-                            <path d="m21 21-4.35-4.35"/>
-                        </svg>
-                    </button>
-                </form>
+                <input type="text" id="searchInput" placeholder="Buscar productos..." autocomplete="off">
+                <button type="button" class="search-btn" onclick="performSearch()">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"/>
+                        <path d="m21 21-4.35-4.35"/>
+                    </svg>
+                </button>
+                <div class="search-results" id="searchResults"></div>
             </div>
             
             <div class="header-actions">
@@ -508,6 +623,91 @@
     </div>
     
     <script>
+        let searchTimeout;
+        const searchInput = document.getElementById('searchInput');
+        const searchResults = document.getElementById('searchResults');
+        
+        // Búsqueda en tiempo real
+        searchInput.addEventListener('input', function() {
+            clearTimeout(searchTimeout);
+            const query = this.value.trim();
+            
+            if (query.length < 2) {
+                searchResults.classList.remove('show');
+                return;
+            }
+            
+            searchTimeout = setTimeout(() => {
+                buscarProductos(query);
+            }, 300);
+        });
+        
+        // Función para buscar productos
+        async function buscarProductos(query) {
+            try {
+                searchResults.innerHTML = '<div class="search-loading">Buscando...</div>';
+                searchResults.classList.add('show');
+                
+                const response = await fetch(`buscar_productos.php?q=${encodeURIComponent(query)}`);
+                const productos = await response.json();
+                
+                if (productos.length === 0) {
+                    searchResults.innerHTML = `
+                        <div class="search-no-results">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="11" cy="11" r="8"/>
+                                <path d="m21 21-4.35-4.35"/>
+                            </svg>
+                            <p>No se encontraron productos</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                let html = '';
+                productos.forEach(producto => {
+                    html += `
+                        <a href="${producto.url}" class="search-result-item">
+                            <img src="${producto.imagen}" alt="${producto.nombre}" class="search-result-img">
+                            <div class="search-result-info">
+                                <div class="search-result-name">${producto.nombre}</div>
+                                <div class="search-result-price">${producto.precio}</div>
+                            </div>
+                        </a>
+                    `;
+                });
+                
+                html += `<a href="productos.php?search=${encodeURIComponent(query)}" class="search-view-all">Ver todos los resultados</a>`;
+                
+                searchResults.innerHTML = html;
+                
+            } catch (error) {
+                console.error('Error al buscar:', error);
+                searchResults.innerHTML = '<div class="search-no-results"><p>Error al realizar la búsqueda</p></div>';
+            }
+        }
+        
+        // Cerrar resultados al hacer clic fuera
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.search-bar')) {
+                searchResults.classList.remove('show');
+            }
+        });
+        
+        // Búsqueda al presionar Enter
+        searchInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                performSearch();
+            }
+        });
+        
+        function performSearch() {
+            const query = searchInput.value.trim();
+            if (query.length > 0) {
+                window.location.href = `productos.php?search=${encodeURIComponent(query)}`;
+            }
+        }
+        
         function toggleMobileMenu() {
             const menu = document.getElementById('mobileMenu');
             const overlay = document.getElementById('mobileOverlay');

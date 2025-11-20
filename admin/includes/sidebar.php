@@ -91,6 +91,22 @@ $current_page = basename($_SERVER['PHP_SELF']);
             </svg>
             <span>Clientes</span>
         </a>
+
+        <a href="mensajes.php" class="nav-item <?= $current_page == 'mensajes.php' ? 'active' : '' ?>">
+           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+              <polyline points="22,6 12,13 2,6"/>
+           </svg>
+          <span>Mensajes</span>
+          <?php
+          $stmt = $pdo->query("SELECT COUNT(*) FROM mensajes_contacto WHERE leido = 0");
+          $mensajes_pendientes = $stmt->fetchColumn();
+          if ($mensajes_pendientes > 0):
+          ?>
+             <span class="badge"><?= $mensajes_pendientes ?></span>
+          <?php endif; ?>
+        </a>
+
         
         <div class="nav-section">
             <h3>Configuración</h3>
@@ -103,5 +119,9 @@ $current_page = basename($_SERVER['PHP_SELF']);
             </svg>
             <span>Configuración</span>
         </a>
+
+    
+
+
     </nav>
 </aside>
