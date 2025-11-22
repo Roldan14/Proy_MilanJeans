@@ -393,34 +393,39 @@ include 'includes/header.php';
         transform: scale(1.08);
     }
     
-    .product-badges {
-        position: absolute;
-        top: 10px;
-        left: 10px;
-        z-index: 2;
-        display: flex;
-        flex-direction: column;
-        gap: 5px;
-    }
-    
-    .product-badge {
-        padding: 4px 8px;
-        border-radius: 12px;
-        font-size: 9px;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-    
-    .badge-nuevo {
-        background: var(--primary);
-        color: var(--white);
-    }
-    
-    .badge-oferta {
-        background: #FFD700;
-        color: var(--secondary);
-    }
+/* Badges minimalistas */
+.product-badges {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    max-width: calc(100% - 24px);
+}
+
+.badge {
+    padding: 4px 10px;
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    background: var(--white);
+    color: var(--text-dark);
+    border-radius: 2px;
+    width: fit-content;
+}
+
+.badge.nuevo {
+    background: var(--primary);
+    color: var(--white);
+}
+
+.badge.oferta {
+    background: #000;
+    color: var(--white);
+}
     
     .product-info {
         padding: 15px;
@@ -436,7 +441,7 @@ include 'includes/header.php';
     
     .product-name {
         font-size: 17px;
-        font-weight: 600;
+        font-weight: 450;
         color: var(--text-dark);
         display: -webkit-box;
         -webkit-line-clamp: 2;
@@ -454,7 +459,7 @@ include 'includes/header.php';
     
     .price-current {
         font-size: 20px;
-        font-weight: 900;
+        font-weight: 700;
         color: var(--primary);
     }
     
@@ -713,10 +718,13 @@ include 'includes/header.php';
                                 </a>
                                 <div class="product-badges">
                                     <?php if ($producto['es_nuevo']): ?>
-                                        <span class="product-badge badge-nuevo">Nuevo</span>
+                                      <span class="badge nuevo">Nuevo</span>
                                     <?php endif; ?>
                                     <?php if ($producto['precio_oferta']): ?>
-                                        <span class="product-badge badge-oferta">Oferta</span>
+                                    <?php 
+                                       $descuento = round((($producto['precio'] - $producto['precio_oferta']) / $producto['precio']) * 100);
+                                    ?>
+                                    <span class="badge oferta">-<?= $descuento ?>%</span>
                                     <?php endif; ?>
                                 </div>
                             </div>

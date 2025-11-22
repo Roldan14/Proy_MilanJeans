@@ -195,7 +195,7 @@ include 'includes/header.php';
     
     .producto-titulo {
         font-size: 32px;
-        font-weight: 900;
+        font-weight: 500;
         color: var(--text-dark);
         line-height: 1.2;
         margin-bottom: 5px;
@@ -210,7 +210,7 @@ include 'includes/header.php';
     
     .precio-actual {
         font-size: 36px;
-        font-weight: 900;
+        font-weight: 700;
         color: var(--primary);
     }
     
@@ -242,8 +242,8 @@ include 'includes/header.php';
     }
     
     .opciones-section h3 {
-        font-size: 12px;
-        font-weight: 700;
+        font-size: 10px;
+        font-weight: 450;
         color: var(--text-dark);
         margin-bottom: 8px;
     }
@@ -267,7 +267,7 @@ include 'includes/header.php';
     .color-swatch {
         width: 30px;
         height: 30px;
-        border: 1px solid;
+        border: 1px solid ;
         transition: all 0.3s;
         display: flex;
         align-items: center;
@@ -310,10 +310,10 @@ include 'includes/header.php';
     
     .talla-label {
         display: block;
-        padding: 10px;
+        padding: 5px;
         text-align: center;
-        border: 2px solid var(--border);
-        border-radius: 8px;
+        border: 1px solid var(--border);
+        border-radius: 5px;
         font-weight: 700;
         font-size: 13px;
         cursor: pointer;
@@ -341,14 +341,14 @@ include 'includes/header.php';
     
     .cantidad-control {
         display: flex;
-        border: 2px solid var(--border);
+        border: 1px solid var(--border);
         border-radius: 8px;
         overflow: hidden;
     }
     
     .cantidad-control button {
         width: 35px;
-        height: 35px;
+        height: 30px;
         border: none;
         background: var(--bg-light);
         color: var(--text-dark);
@@ -382,11 +382,12 @@ include 'includes/header.php';
     .btn-add-cart {
         flex: 1;
         padding: 12px 20px;
-        background: var(--primary);
-        color: var(--white);
-        border: none;
-        border-radius: 8px;
-        font-size: 13px;
+        background: transparent;
+        color: var(--text-dark);
+        border: 1px solid var(--text-dark);
+        border-radius: 3px;
+        font-size: 11px;
+        letter-spacing: 0.7px;
         font-weight: 700;
         cursor: pointer;
         transition: all 0.3s;
@@ -395,9 +396,10 @@ include 'includes/header.php';
     }
     
     .btn-add-cart:hover {
-        background: var(--primary-dark);
+        background: var(--primary);
         transform: translateY(-2px);
-        box-shadow: 0 8px 20px rgba(220, 20, 60, 0.3);
+        color: var(--white);
+        border: none;
     }
     
     .btn-whatsapp {
@@ -405,7 +407,7 @@ include 'includes/header.php';
         background: #25D366;
         color: var(--white);
         border: none;
-        border-radius: 8px;
+        border-radius: 3px;
         font-size: 13px;
         font-weight: 700;
         cursor: pointer;

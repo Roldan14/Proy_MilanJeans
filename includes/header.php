@@ -129,7 +129,7 @@
         .search-bar input {
             width: 100%;
             padding: 14px 50px 14px 20px;
-            border: 2px solid var(--border);
+            border: 1px solid var(--border);
             border-radius: 50px;
             font-size: 14px;
             transition: all 0.3s;
@@ -347,10 +347,12 @@
             padding: 18px 0;
             color: var(--text-dark);
             text-decoration: none;
-            font-weight: 600;
-            font-size: 15px;
+            font-weight: 500;
+            font-size: 13px;
             position: relative;
             transition: color 0.3s;
+            letter-spacing: 0.7px;
+            text-transform: uppercase;
         }
         
         .nav-menu li a:hover {

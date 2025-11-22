@@ -5,6 +5,7 @@ if (!defined('DB_HOST')) {
 }
 ?>
 <header class="admin-header">
+    
     <div class="header-left">
         <button class="btn-menu" id="toggleSidebar">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">

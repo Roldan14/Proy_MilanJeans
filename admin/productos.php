@@ -318,6 +318,17 @@ $categorias = $pdo->query("SELECT * FROM categorias WHERE activo = 1 ORDER BY no
                 grid-template-columns: 1fr;
             }
         }
+
+        @media (max-width: 480px) {
+            .productos-grid {
+               grid-template-columns: 1fr;
+               gap: 15px;
+            }
+    
+            .product-card {
+               max-width: 100%;
+            }
+        }
     </style>
 </head>
 <body>
