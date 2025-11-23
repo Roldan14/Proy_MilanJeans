@@ -266,14 +266,14 @@ include 'includes/header.php';
         background: var(--primary);
         color: var(--white);
         border: none;
-        border-radius: 10px;
+        border-radius: 3px;
         font-size: 16px;
         font-weight: 700;
         cursor: pointer;
         margin-top: 20px;
         transition: all 0.3s;
         text-transform: uppercase;
-        letter-spacing: 0.5px;
+        letter-spacing: 1px;
         text-decoration: none;
         display: block;
         text-align: center;
@@ -282,7 +282,6 @@ include 'includes/header.php';
     .btn-checkout:hover {
         background: var(--primary-dark);
         transform: translateY(-2px);
-        box-shadow: 0 10px 30px rgba(220, 20, 60, 0.3);
     }
     
     .btn-continuar {
@@ -290,14 +289,15 @@ include 'includes/header.php';
         padding: 12px;
         background: var(--white);
         color: var(--text-dark);
-        border: 2px solid var(--border);
-        border-radius: 10px;
+        border: 2px solid var(--text-dark);
+        border-radius: 3px;
         font-size: 14px;
         font-weight: 600;
         cursor: pointer;
         margin-top: 10px;
         transition: all 0.3s;
         text-decoration: none;
+        letter-spacing: 1px;
         display: block;
         text-align: center;
     }
@@ -344,33 +344,38 @@ include 'includes/header.php';
     
     .carrito-vacio h2 {
         font-size: 28px;
-        font-weight: 900;
+        font-weight: 600;
         color: var(--text-dark);
         margin-bottom: 10px;
+        letter-spacing: 1px;
     }
     
     .carrito-vacio p {
         color: var(--text-gray);
         margin-bottom: 30px;
         font-size: 16px;
+        letter-spacing: 1px;
     }
     
     .btn-comprar {
         display: inline-block;
         padding: 15px 40px;
-        background: var(--primary);
-        color: var(--white);
+        background: var(--white);
+        color: var(--text-dark);
         text-decoration: none;
-        border-radius: 50px;
+        border: 1px solid var(--text-dark);
+        border-radius: 3px;
         font-weight: 700;
         font-size: 16px;
         transition: all 0.3s;
     }
     
     .btn-comprar:hover {
-        background: var(--primary-dark);
+        background: var(--primary);
         transform: translateY(-3px);
         box-shadow: 0 10px 30px rgba(220, 20, 60, 0.3);
+        color: var(--white);
+        border: none;
     }
     
     .alert {

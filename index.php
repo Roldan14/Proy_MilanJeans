@@ -49,8 +49,8 @@ $categorias = $pdo->query("
     SELECT * FROM categorias 
     WHERE activo = 1 
     ORDER BY orden, nombre 
-    LIMIT 6
 ")->fetchAll();
+
 
 include 'includes/header.php';
 ?>
@@ -336,57 +336,121 @@ include 'includes/header.php';
     margin: 20px auto 0;
 }
 
-/* Categories Grid */
-.categories-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 20px;
-}
-
-.category-card {
+/* Categorías Carousel */
+.categorias-carousel-container {
     position: relative;
-    height: 250px;
-    border-radius: 15px;
-    overflow: hidden;
+    padding: 0 60px;
+}
+
+.categorias-carousel {
+    display: flex;
+    gap: 30px;
+    overflow-x: auto;
+    scroll-behavior: smooth;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    padding: 20px 0;
+}
+
+.categorias-carousel::-webkit-scrollbar {
+    display: none;
+}
+
+.categoria-card-circular {
+    flex: 0 0 auto;
+    text-decoration: none;
+    text-align: center;
+    transition: transform 0.3s ease;
     cursor: pointer;
-    transition: all 0.3s;
+    margin-left: 6rem;
 }
 
-.category-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(to bottom, transparent, rgba(0,0,0,0.7));
-    z-index: 1;
+.categoria-card-circular:hover {
+    transform: translateY(-8px);
 }
 
-.category-card:hover {
-    transform: translateY(-10px);
-    box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+.categoria-image-wrapper {
+    width: 180px;
+    height: 180px;
+    border-radius: 50%;
+    overflow: hidden;
+    margin: 0 auto 15px;
+    background: var(--bg-light);
+    border: 1px solid var(--text-dark);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+    position: relative;
 }
 
-.category-image {
+.categoria-card-circular:hover .categoria-image-wrapper {
+    border-color: var(--primary);
+    transform: scale(1.05);
+}
+
+.categoria-image {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    transition: transform 0.3s;
+    transition: transform 0.5s ease;
 }
 
-.category-card:hover .category-image {
+.categoria-card-circular:hover .categoria-image {
     transform: scale(1.1);
 }
 
-.category-name {
-    position: absolute;
-    bottom: 20px;
-    left: 20px;
-    color: var(--white);
-    font-size: 22px;
+.categoria-name-circular {
+    font-size: 16px;
     font-weight: 700;
-    z-index: 2;
+    color: var(--text-dark);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    transition: color 0.3s ease;
+}
+
+.categoria-card-circular:hover .categoria-name-circular {
+    color: var(--primary);
+}
+
+
+/* Responsive */
+@media (max-width: 968px) {
+    .categorias-carousel-container {
+        padding: 0 40px;
+    }
+    
+    .categoria-image-wrapper {
+        width: 140px;
+        height: 140px;
+    }
+    
+    .categoria-name-circular {
+        font-size: 14px;
+    }
+    
+    .carousel-nav {
+        width: 35px;
+        height: 35px;
+    }
+}
+
+@media (max-width: 640px) {
+    .categorias-carousel-container {
+        padding: 0 30px;
+    }
+    
+    .categoria-image-wrapper {
+        width: 120px;
+        height: 120px;
+        border-width: 3px;
+    }
+    
+    .categoria-name-circular {
+        font-size: 13px;
+    }
+    
+    .categorias-carousel {
+        gap: 20px;
+    }
 }
 
 /* Products Grid - Grid Asimétrico */
@@ -640,7 +704,7 @@ include 'includes/header.php';
 </section>
 <?php endif; ?>
 
-<!-- Categorías -->
+<!-- Categorías con Carrusel -->
 <?php if (!empty($categorias)): ?>
 <section class="section section-light">
     <div class="container">
@@ -649,15 +713,20 @@ include 'includes/header.php';
             <p>Encuentra exactamente lo que buscas</p>
         </div>
         
-        <div class="categories-grid">
-            <?php foreach ($categorias as $cat): ?>
-                <a href="productos.php?categoria=<?= $cat['id'] ?>" class="category-card" style="text-decoration: none;">
-                    <img src="imagenes/pants.png" 
-                         alt="<?= htmlspecialchars($cat['nombre']) ?>" 
-                         class="category-image">
-                    <div class="category-name"><?= htmlspecialchars($cat['nombre']) ?></div>
-                </a>
-            <?php endforeach; ?>
+        <div class="categorias-carousel-container">
+            
+            <div class="categorias-carousel" id="categoriasCarousel">
+                <?php foreach ($categorias as $cat): ?>
+                    <a href="productos.php?categoria=<?= $cat['id'] ?>" class="categoria-card-circular">
+                        <div class="categoria-image-wrapper">
+                            <img src="<?= $cat['imagen'] ? UPLOAD_URL . $cat['imagen'] : 'imagenes/default-category.png' ?>" 
+                                 alt="<?= htmlspecialchars($cat['nombre']) ?>"
+                                 class="categoria-image">
+                        </div>
+                        <div class="categoria-name-circular"><?= htmlspecialchars($cat['nombre']) ?></div>
+                    </a>
+                <?php endforeach; ?>
+            </div>
         </div>
     </div>
 </section>
@@ -707,6 +776,52 @@ include 'includes/header.php';
 <?php endif; ?>
 
 <script>
+
+
+// Inicializar estado de botones al cargar
+document.addEventListener('DOMContentLoaded', function() {
+    updateNavButtons();
+    
+    // Actualizar al hacer scroll
+    const carousel = document.getElementById('categoriasCarousel');
+    if (carousel) {
+        carousel.addEventListener('scroll', updateNavButtons);
+    }
+});
+
+// Soporte para arrastrar con mouse
+const carousel = document.getElementById('categoriasCarousel');
+let isDown = false;
+let startX;
+let scrollLeft;
+
+if (carousel) {
+    carousel.addEventListener('mousedown', (e) => {
+        isDown = true;
+        carousel.style.cursor = 'grabbing';
+        startX = e.pageX - carousel.offsetLeft;
+        scrollLeft = carousel.scrollLeft;
+    });
+
+    carousel.addEventListener('mouseleave', () => {
+        isDown = false;
+        carousel.style.cursor = 'grab';
+    });
+
+    carousel.addEventListener('mouseup', () => {
+        isDown = false;
+        carousel.style.cursor = 'grab';
+    });
+
+    carousel.addEventListener('mousemove', (e) => {
+        if (!isDown) return;
+        e.preventDefault();
+        const x = e.pageX - carousel.offsetLeft;
+        const walk = (x - startX) * 2;
+        carousel.scrollLeft = scrollLeft - walk;
+    });
+}
+
     // Slider functionality
     let currentSlide = 0;
     const slides = document.querySelectorAll('.slide');

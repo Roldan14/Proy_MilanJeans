@@ -183,7 +183,7 @@ include 'includes/header.php';
     
     .page-header-productos h1 {
         font-size: 36px;
-        font-weight: 900;
+        font-weight: 700;
         color: var(--text-dark);
         margin-bottom: 10px;
     }
@@ -215,6 +215,7 @@ include 'includes/header.php';
         color: var(--text-dark);
         margin-bottom: 15px;
         padding-bottom: 10px;
+        letter-spacing: 1px;
         border-bottom: 2px solid var(--bg-light);
     }
     
@@ -245,27 +246,110 @@ include 'includes/header.php';
         flex: 1;
         font-size: 14px;
     }
-    
-    .color-option {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        padding: 4px 0;
-        cursor: pointer;
-        font-size: 13px;
-    }
-    
-    .color-swatch {
-        width: 30px;
-        height: 30px;
-        border: 1px solid ;
-        transition: all 0.3s;
-    }
-    
-    .color-option:hover .color-swatch {
-        border-color: var(--primary);
-        transform: scale(1.1);
-    }
+
+    /* Categorías Minimalistas */
+.categoria-list-minimal {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+.categoria-minimal {
+    position: relative;
+    padding: 10px 13px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border-left: 3px solid transparent;
+    font-size: 14px;
+    letter-spacing: 1px;
+    color: var(--text-gray);
+    display: block;
+}
+
+.categoria-minimal input[type="radio"] {
+    display: none;
+}
+
+.categoria-minimal:hover {
+    background: var(--bg-light);
+    color: var(--text-dark);
+    padding-left: 20px;
+}
+
+.categoria-minimal.active {
+    background: var(--bg-light);
+    border-left-color: var(--primary);
+    color: var(--primary);
+    font-weight: 600;
+    padding-left: 20px;
+}
+
+.categoria-minimal span {
+    display: block;
+}
+
+.color-option {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    cursor: pointer;
+    font-size: 11px;
+    transition: all 0.3s;
+}
+
+.color-option input[type="radio"] {
+    display: none;
+}
+
+.color-swatch {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    transition: all 0.3s;
+    position: relative;
+    border: 0.5px solid var(--text-dark);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    margin-bottom: 8px;
+}
+
+.color-option:hover .color-swatch {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.color-option input[type="radio"]:checked + .color-swatch {
+    border: 3px solid var(--text-dark);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    transform: scale(1.1);
+}
+
+/* Checkmark cuando está seleccionado */
+.color-option input[type="radio"]:checked + .color-swatch::after {
+    content: '✓';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: var(--white);
+    font-size: 16px;
+    font-weight: 900;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+}
+
+.color-option span {
+    color: var(--text-gray);
+    font-size: 14px;
+    font-weight: 450;
+    text-align: center;
+    letter-spacing: 1px;
+    transition: color 0.3s;
+}
+
+.color-option input[type="radio"]:checked ~ span {
+    color: var(--text-dark);
+    font-weight: 700;
+}
+
     
     .price-inputs {
         display: grid;
@@ -282,22 +366,29 @@ include 'includes/header.php';
         width: 7rem;
     }
     
+
+
+    
     .btn-filter {
         width: 100%;
         padding: 12px;
-        background: var(--primary);
-        color: var(--white);
-        border: none;
+        background: var(--white);
+        color: var(--text-dark);
+        border: 1px solid var(--text-dark);
         border-radius: 3px;
         font-weight: 600;
         cursor: pointer;
         margin-top: 15px;
         transition: all 0.3s;
+        letter-spacing: 1px;
+        text-decoration: none;
     }
     
     .btn-filter:hover {
-        background: var(--primary-dark);
+        background: var(--primary);
         transform: translateY(-2px);
+        color: var(--white);
+        border: none;
     }
     
     .btn-clear {
@@ -518,11 +609,13 @@ include 'includes/header.php';
         font-size: 24px;
         color: var(--text-dark);
         margin-bottom: 10px;
+        letter-spacing: 1px;
     }
     
     .empty-state p {
         color: var(--text-gray);
         margin-bottom: 20px;
+        letter-spacing: 1px;
     }
     
     .active-filters {
@@ -593,24 +686,24 @@ include 'includes/header.php';
         <!-- Sidebar Filtros -->
         <aside class="filters-sidebar">
             <form method="GET" id="filterForm">
-                <!-- Categorías -->
-                <?php if (!empty($categorias)): ?>
-                    <div class="filter-section">
-                        <h3>Categorías</h3>
-                        <?php foreach ($categorias as $cat): ?>
-                            <div class="filter-option">
-                                <input type="radio" 
-                                       name="categoria" 
-                                       value="<?= $cat['id'] ?>" 
-                                       id="cat_<?= $cat['id'] ?>"
-                                       <?= $categoria_id == $cat['id'] ? 'checked' : '' ?>
-                                       onchange="this.form.submit()">
-                                <label for="cat_<?= $cat['id'] ?>"><?= htmlspecialchars($cat['nombre']) ?></label>
-                            </div>
-                        <?php endforeach; ?>
-                    </div>
-                <?php endif; ?>
-                
+<!-- Categorías -->
+<?php if (!empty($categorias)): ?>
+    <div class="filter-section">
+        <h3>Categorías</h3>
+        <div class="categoria-list-minimal">
+            <?php foreach ($categorias as $cat): ?>
+                <label class="categoria-minimal <?= $categoria_id == $cat['id'] ? 'active' : '' ?>">
+                    <input type="radio" 
+                           name="categoria" 
+                           value="<?= $cat['id'] ?>"
+                           <?= $categoria_id == $cat['id'] ? 'checked' : '' ?>
+                           onchange="this.form.submit()">
+                    <span><?= htmlspecialchars($cat['nombre']) ?></span>
+                </label>
+            <?php endforeach; ?>
+        </div>
+    </div>
+<?php endif; ?>
                 <!-- Colores -->
                 <?php if (!empty($colores)): ?>
                     <div class="filter-section">
@@ -648,7 +741,7 @@ include 'includes/header.php';
                                            onchange="this.form.submit()"
                                            style="display: none;">
                                     <label for="talla_<?= $talla['id'] ?>" 
-                                           style="display: block; padding: 8px; text-align: center; border: 2px solid var(--border); border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 13px; <?= $talla_id == $talla['id'] ? 'background: var(--primary); color: var(--white); border-color: var(--primary);' : '' ?>">
+                                           style="display: block; padding: 5px; text-align: center; border: 2px solid var(--border); border-radius: 3px; cursor: pointer; font-weight: 600; font-size: 13px; <?= $talla_id == $talla['id'] ? 'background: var(--primary); color: var(--white); border-color: var(--primary);' : '' ?>">
                                         <?= htmlspecialchars($talla['nombre']) ?>
                                     </label>
                                 </div>

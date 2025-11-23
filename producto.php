@@ -199,6 +199,7 @@ include 'includes/header.php';
         color: var(--text-dark);
         line-height: 1.2;
         margin-bottom: 5px;
+        letter-spacing: 1px;
     }
     
     .producto-precio {
@@ -224,7 +225,6 @@ include 'includes/header.php';
         background: var(--primary);
         color: var(--white);
         padding: 6px 12px;
-        border-radius: 15px;
         font-size: 12px;
         font-weight: 700;
     }
@@ -235,6 +235,7 @@ include 'includes/header.php';
         font-size: 14px;
         padding-bottom: 25px;
         border-bottom: 1px solid var(--bg-light);
+        margin-bottom: 15px;
     }
     
     .opciones-section {

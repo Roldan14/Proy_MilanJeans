@@ -132,6 +132,7 @@
             border: 1px solid var(--border);
             border-radius: 50px;
             font-size: 14px;
+            letter-spacing: 1px;
             transition: all 0.3s;
         }
         
@@ -261,16 +262,17 @@
             padding: 15px 20px;
             text-align: center;
             background: var(--bg-light);
-            color: var(--primary);
+            color: var(--text-dark);
             text-decoration: none;
             font-weight: 600;
+            letter-spacing: 1px;
             border-radius: 0 0 15px 15px;
             transition: all 0.3s;
         }
         
         .search-view-all:hover {
-            background: var(--primary);
-            color: var(--white);
+            background: var(--bg-light);
+            color: var(--primary);
         }
         
         /* Header Actions */

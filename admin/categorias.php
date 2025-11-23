@@ -1,5 +1,5 @@
 <?php
-// categorias.php - Gestión de categorías
+// categorias.php - Gestión de categorías con imágenes
 require_once 'config.php';
 requireLogin();
 
@@ -13,15 +13,40 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $slug = generateSlug($nombre);
     
     try {
+        // Subir imagen si existe
+        $imagen_path = '';
+        
+        if ($id > 0) {
+            // Si es edición, obtener imagen actual
+            $stmt = $pdo->prepare("SELECT imagen FROM categorias WHERE id = ?");
+            $stmt->execute([$id]);
+            $cat_actual = $stmt->fetch();
+            $imagen_path = $cat_actual['imagen'] ?? '';
+        }
+        
+        if (isset($_FILES['imagen']) && $_FILES['imagen']['error'] === UPLOAD_ERR_OK) {
+            $upload = uploadImage($_FILES['imagen'], 'categorias');
+            
+            if ($upload['success']) {
+                // Eliminar imagen anterior si existe
+                if ($imagen_path) {
+                    deleteImage($imagen_path);
+                }
+                $imagen_path = $upload['path'];
+            } else {
+                throw new Exception($upload['message']);
+            }
+        }
+        
         if ($id > 0) {
             // Actualizar
-            $stmt = $pdo->prepare("UPDATE categorias SET nombre = ?, slug = ?, descripcion = ?, orden = ?, activo = ? WHERE id = ?");
-            $stmt->execute([$nombre, $slug, $descripcion, $orden, $activo, $id]);
+            $stmt = $pdo->prepare("UPDATE categorias SET nombre = ?, slug = ?, descripcion = ?, imagen = ?, orden = ?, activo = ? WHERE id = ?");
+            $stmt->execute([$nombre, $slug, $descripcion, $imagen_path, $orden, $activo, $id]);
             $success = "Categoría actualizada correctamente";
         } else {
             // Crear
-            $stmt = $pdo->prepare("INSERT INTO categorias (nombre, slug, descripcion, orden, activo) VALUES (?, ?, ?, ?, ?)");
-            $stmt->execute([$nombre, $slug, $descripcion, $orden, $activo]);
+            $stmt = $pdo->prepare("INSERT INTO categorias (nombre, slug, descripcion, imagen, orden, activo) VALUES (?, ?, ?, ?, ?, ?)");
+            $stmt->execute([$nombre, $slug, $descripcion, $imagen_path, $orden, $activo]);
             $success = "Categoría creada correctamente";
         }
     } catch (PDOException $e) {
@@ -34,8 +59,19 @@ if (isset($_GET['eliminar'])) {
     $id = (int)$_GET['eliminar'];
     
     try {
+        // Obtener imagen para eliminarla
+        $stmt = $pdo->prepare("SELECT imagen FROM categorias WHERE id = ?");
+        $stmt->execute([$id]);
+        $cat = $stmt->fetch();
+        
         $stmt = $pdo->prepare("DELETE FROM categorias WHERE id = ?");
         $stmt->execute([$id]);
+        
+        // Eliminar imagen si existe
+        if ($cat && $cat['imagen']) {
+            deleteImage($cat['imagen']);
+        }
+        
         $success = "Categoría eliminada correctamente";
     } catch (PDOException $e) {
         $error = "Error al eliminar: " . $e->getMessage();
@@ -148,6 +184,22 @@ if (isset($_GET['editar'])) {
             background: var(--light);
         }
         
+        .category-info-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex: 1;
+        }
+        
+        .category-image-thumb {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            object-fit: cover;
+            background: var(--light);
+            flex-shrink: 0;
+        }
+        
         .category-info {
             flex: 1;
         }
@@ -210,6 +262,40 @@ if (isset($_GET['editar'])) {
             color: white;
         }
         
+        /* Image Upload */
+        .image-upload-area {
+            border: 2px dashed #e0e0e0;
+            border-radius: 8px;
+            padding: 30px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: var(--light);
+        }
+        
+        .image-upload-area:hover {
+            border-color: var(--primary);
+            background: white;
+        }
+        
+        .image-upload-area input[type="file"] {
+            display: none;
+        }
+        
+        .image-preview {
+            margin-top: 15px;
+            display: flex;
+            justify-content: center;
+        }
+        
+        .image-preview img {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
         .alert {
             padding: 15px 20px;
             border-radius: 5px;
@@ -250,7 +336,7 @@ if (isset($_GET['editar'])) {
         <main class="main-content">
             <div class="page-header">
                 <h1>Categorías</h1>
-                <p>Organiza tus productos en categorías</p>
+                <p>Organiza tus productos en categorías con imágenes</p>
             </div>
             
             <?php if (isset($success)): ?>
@@ -274,18 +360,24 @@ if (isset($_GET['editar'])) {
                         <div class="category-list">
                             <?php foreach ($categorias as $cat): ?>
                                 <div class="category-item">
-                                    <div class="category-info">
-                                        <div class="category-name">
-                                            <?= htmlspecialchars($cat['nombre']) ?>
-                                            <span class="category-badge <?= $cat['activo'] ? 'badge-active' : 'badge-inactive' ?>">
-                                                <?= $cat['activo'] ? 'Activa' : 'Inactiva' ?>
-                                            </span>
-                                        </div>
-                                        <div class="category-meta">
-                                            <?= $cat['total_productos'] ?> producto(s) | Orden: <?= $cat['orden'] ?>
-                                            <?php if ($cat['descripcion']): ?>
-                                                | <?= htmlspecialchars($cat['descripcion']) ?>
-                                            <?php endif; ?>
+                                    <div class="category-info-wrapper">
+                                        <img src="<?= $cat['imagen'] ? UPLOAD_URL . $cat['imagen'] : 'https://via.placeholder.com/60?text=Sin+Imagen' ?>" 
+                                             alt="<?= htmlspecialchars($cat['nombre']) ?>"
+                                             class="category-image-thumb">
+                                        
+                                        <div class="category-info">
+                                            <div class="category-name">
+                                                <?= htmlspecialchars($cat['nombre']) ?>
+                                                <span class="category-badge <?= $cat['activo'] ? 'badge-active' : 'badge-inactive' ?>">
+                                                    <?= $cat['activo'] ? 'Activa' : 'Inactiva' ?>
+                                                </span>
+                                            </div>
+                                            <div class="category-meta">
+                                                <?= $cat['total_productos'] ?> producto(s) | Orden: <?= $cat['orden'] ?>
+                                                <?php if ($cat['descripcion']): ?>
+                                                    | <?= htmlspecialchars($cat['descripcion']) ?>
+                                                <?php endif; ?>
+                                            </div>
                                         </div>
                                     </div>
                                     
@@ -313,7 +405,7 @@ if (isset($_GET['editar'])) {
                 <div class="card">
                     <h2><?= $categoria_edit ? 'Editar' : 'Nueva' ?> Categoría</h2>
                     
-                    <form method="POST">
+                    <form method="POST" enctype="multipart/form-data">
                         <?php if ($categoria_edit): ?>
                             <input type="hidden" name="id" value="<?= $categoria_edit['id'] ?>">
                         <?php endif; ?>
@@ -326,6 +418,26 @@ if (isset($_GET['editar'])) {
                         <div class="form-group">
                             <label>Descripción</label>
                             <textarea name="descripcion"><?= $categoria_edit['descripcion'] ?? '' ?></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Imagen de la Categoría</label>
+                            <div class="image-upload-area" onclick="document.getElementById('imagenInput').click()">
+                                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin: 0 auto 10px; color: var(--gray);">
+                                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                                    <circle cx="8.5" cy="8.5" r="1.5"/>
+                                    <polyline points="21 15 16 10 5 21"/>
+                                </svg>
+                                <p style="color: var(--gray); margin-bottom: 5px;">Haz clic para seleccionar imagen</p>
+                                <p style="font-size: 12px; color: var(--gray);">Recomendado: 500x500px (circular)</p>
+                                <input type="file" id="imagenInput" name="imagen" accept="image/*" onchange="previewImage(event)">
+                            </div>
+                            
+                            <div class="image-preview" id="imagePreview">
+                                <?php if ($categoria_edit && $categoria_edit['imagen']): ?>
+                                    <img src="<?= UPLOAD_URL . $categoria_edit['imagen'] ?>" alt="Preview">
+                                <?php endif; ?>
+                            </div>
                         </div>
                         
                         <div class="form-group">
@@ -360,6 +472,18 @@ if (isset($_GET['editar'])) {
     </div>
     
     <script>
+        function previewImage(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const preview = document.getElementById('imagePreview');
+                    preview.innerHTML = '<img src="' + e.target.result + '" alt="Preview">';
+                }
+                reader.readAsDataURL(file);
+            }
+        }
+        
         function confirmarEliminar(id, nombre) {
             if (confirm('¿Estás seguro de eliminar la categoría "' + nombre + '"?\n\nLos productos asociados no se eliminarán.')) {
                 window.location.href = 'categorias.php?eliminar=' + id;
