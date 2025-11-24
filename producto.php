@@ -999,7 +999,107 @@ include 'includes/header.php';
         });
     });
     
-    // Agregar al carrito
+    // ============================================
+    // FUNCIÓN PARA EL CARRUSEL DE PRODUCTOS
+    // ============================================
+    function scrollCarousel(carouselId, direction) {
+        const carousel = document.getElementById('carousel-' + carouselId);
+        if (!carousel) return;
+        
+        const scrollAmount = 320; // Ancho de tarjeta + gap
+        const currentScroll = carousel.scrollLeft;
+        const targetScroll = currentScroll + (scrollAmount * direction);
+        
+        carousel.scrollTo({
+            left: targetScroll,
+            behavior: 'smooth'
+        });
+        
+        // Actualizar estado de botones después de scroll
+        setTimeout(() => updateCarouselButtons(carouselId), 300);
+    }
+    
+    // Función para actualizar el estado de los botones del carrusel
+    function updateCarouselButtons(carouselId) {
+        const carousel = document.getElementById('carousel-' + carouselId);
+        if (!carousel) return;
+        
+        const prevBtn = carousel.closest('.relacionados-section').querySelector('.carousel-btn.prev');
+        const nextBtn = carousel.closest('.relacionados-section').querySelector('.carousel-btn.next');
+        
+        if (!prevBtn || !nextBtn) return;
+        
+        // Deshabilitar botón prev si está al inicio
+        if (carousel.scrollLeft <= 0) {
+            prevBtn.disabled = true;
+            prevBtn.style.opacity = '0.3';
+        } else {
+            prevBtn.disabled = false;
+            prevBtn.style.opacity = '1';
+        }
+        
+        // Deshabilitar botón next si está al final
+        const maxScroll = carousel.scrollWidth - carousel.clientWidth;
+        if (carousel.scrollLeft >= maxScroll - 10) { // -10 para margen de error
+            nextBtn.disabled = true;
+            nextBtn.style.opacity = '0.3';
+        } else {
+            nextBtn.disabled = false;
+            nextBtn.style.opacity = '1';
+        }
+    }
+    
+    // Inicializar carrusel al cargar la página
+    document.addEventListener('DOMContentLoaded', function() {
+        // Actualizar botones inicialmente
+        updateCarouselButtons('relacionados');
+        updateCarouselButtons('sugeridos');
+        
+        // Actualizar al hacer scroll manual
+        const carousels = document.querySelectorAll('.productos-carousel');
+        carousels.forEach(carousel => {
+            carousel.addEventListener('scroll', function() {
+                const carouselId = this.id.replace('carousel-', '');
+                updateCarouselButtons(carouselId);
+            });
+        });
+    });
+    
+    // Soporte para arrastrar con el mouse (opcional pero mejora UX)
+    document.querySelectorAll('.productos-carousel').forEach(carousel => {
+        let isDown = false;
+        let startX;
+        let scrollLeft;
+        
+        carousel.addEventListener('mousedown', (e) => {
+            isDown = true;
+            carousel.style.cursor = 'grabbing';
+            startX = e.pageX - carousel.offsetLeft;
+            scrollLeft = carousel.scrollLeft;
+        });
+        
+        carousel.addEventListener('mouseleave', () => {
+            isDown = false;
+            carousel.style.cursor = 'grab';
+        });
+        
+        carousel.addEventListener('mouseup', () => {
+            isDown = false;
+            carousel.style.cursor = 'grab';
+        });
+        
+        carousel.addEventListener('mousemove', (e) => {
+            if (!isDown) return;
+            e.preventDefault();
+            const x = e.pageX - carousel.offsetLeft;
+            const walk = (x - startX) * 2;
+            carousel.scrollLeft = scrollLeft - walk;
+        });
+    });
+    
+    // ============================================
+    // AGREGAR AL CARRITO (código existente)
+    // ============================================
     document.getElementById('addToCartForm').addEventListener('submit', function(e) {
         e.preventDefault();
         

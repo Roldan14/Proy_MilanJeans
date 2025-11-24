@@ -710,7 +710,6 @@ include 'includes/header.php';
     <div class="container">
         <div class="section-header">
             <h2>Categorías</h2>
-            <p>Encuentra exactamente lo que buscas</p>
         </div>
         
         <div class="categorias-carousel-container">

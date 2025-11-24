@@ -3,8 +3,9 @@
 require_once 'config.php';
 requireLogin();
 
-$id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
-$producto_id = isset($_GET['producto']) ? (int)$_GET['producto'] : 0;
+header('Content-Type: application/json');
+
+$id = isset($_POST['id']) ? (int)$_POST['id'] : 0;
 
 if ($id > 0) {
     try {
@@ -32,13 +33,27 @@ if ($id > 0) {
                 ");
                 $stmt->execute([$imagen['producto_id']]);
             }
+            
+            echo json_encode([
+                'success' => true,
+                'message' => 'Imagen eliminada correctamente'
+            ]);
+        } else {
+            echo json_encode([
+                'success' => false,
+                'message' => 'Imagen no encontrada'
+            ]);
         }
     } catch (PDOException $e) {
-        // Manejar error silenciosamente
+        echo json_encode([
+            'success' => false,
+            'message' => 'Error al eliminar la imagen'
+        ]);
     }
+} else {
+    echo json_encode([
+        'success' => false,
+        'message' => 'ID inválido'
+    ]);
 }
-
-// Redirigir de vuelta al formulario
-header('Location: producto_form.php?id=' . $producto_id);
-exit;
 ?>

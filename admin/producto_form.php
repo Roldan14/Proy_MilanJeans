@@ -533,23 +533,25 @@ $tallas = $pdo->query("SELECT * FROM tallas WHERE activo = 1 ORDER BY orden")->f
                                 <div class="image-preview" id="newImagePreview" style="display: none;"></div>
                                 
                                 <?php if ($is_edit && !empty($imagenes_producto)): ?>
-                                    <div style="margin-top: 20px;">
-                                        <h4 style="font-size: 14px; margin-bottom: 10px; color: var(--dark);">Imágenes actuales</h4>
-                                        <div class="image-preview">
+                                   <div style="margin-top: 20px;">
+                                       <h4 style="font-size: 14px; margin-bottom: 10px; color: var(--dark);">Imágenes actuales</h4>
+                                       <div class="image-preview" id="imagenesActuales">
                                             <?php foreach ($imagenes_producto as $img): ?>
-                                                <div class="image-preview-item">
-                                                    <img src="<?= UPLOAD_URL . $img['ruta_imagen'] ?>" alt="">
-                                                    <?php if ($img['es_principal']): ?>
-                                                        <span class="image-preview-badge">Principal</span>
-                                                    <?php endif; ?>
-                                                    <button type="button" class="btn-delete-image" onclick="eliminarImagen(<?= $img['id'] ?>)">
-                                                        ×
-                                                    </button>
-                                                </div>
+                                            <div class="image-preview-item" id="imagen-<?= $img['id'] ?>">
+                                                <img src="<?= UPLOAD_URL . $img['ruta_imagen'] ?>" alt="">
+                                                <?php if ($img['es_principal']): ?>
+                                                    <span class="image-preview-badge">Principal</span>
+                                                <?php endif; ?>
+                                                <button type="button" 
+                                                   class="btn-delete-image" 
+                                                   onclick="eliminarImagenAjax(<?= $img['id'] ?>)"
+                                                   title="Eliminar imagen">
+                                                </button>
+                                            </div>
                                             <?php endforeach; ?>
                                         </div>
                                     </div>
-                                <?php endif; ?>
+                               <?php endif; ?>
                             </div>
                         </div>
                     </div>
@@ -614,11 +616,53 @@ $tallas = $pdo->query("SELECT * FROM tallas WHERE activo = 1 ORDER BY orden")->f
     </div>
     
     <script>
-        function eliminarImagen(id) {
-            if (confirm('¿Estás seguro de eliminar esta imagen?')) {
-                window.location.href = 'eliminar_imagen.php?id=' + id + '&producto=<?= $id ?>';
-            }
+        // Función para eliminar imagen con AJAX
+        function eliminarImagenAjax(imagenId) {
+          const imagenElement = document.getElementById('imagen-' + imagenId);
+    
+          // Agregar efecto visual de eliminación
+          imagenElement.style.opacity = '0.5';
+          imagenElement.style.pointerEvents = 'none';
+    
+          // Enviar petición AJAX
+          fetch('eliminar_imagen.php', {
+               method: 'POST',
+               headers: {
+                  'Content-Type': 'application/x-www-form-urlencoded',
+                },
+               body: 'id=' + imagenId
+            })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Eliminar el elemento del DOM con animación
+            imagenElement.style.transform = 'scale(0)';
+            imagenElement.style.transition = 'all 0.3s ease';
+            
+            setTimeout(() => {
+                imagenElement.remove();
+                
+                // Verificar si quedan imágenes
+                const imagenesRestantes = document.querySelectorAll('#imagenesActuales .image-preview-item');
+                if (imagenesRestantes.length === 0) {
+                    document.getElementById('imagenesActuales').parentElement.style.display = 'none';
+                }
+            }, 300);
+        } else {
+            // Restaurar el elemento si hay error
+            imagenElement.style.opacity = '1';
+            imagenElement.style.pointerEvents = 'auto';
+            alert('Error al eliminar la imagen: ' + data.message);
         }
+    })
+    .catch(error => {
+        // Restaurar el elemento si hay error
+        imagenElement.style.opacity = '1';
+        imagenElement.style.pointerEvents = 'auto';
+        console.error('Error:', error);
+        alert('Error al eliminar la imagen');
+    });
+}
         
         // Manejo de subida de imágenes con preview
         const dropZone = document.getElementById('dropZone');
