@@ -255,7 +255,7 @@ include 'includes/header.php';
         background: var(--primary);
         color: var(--white);
         padding: 20px;
-        border-radius: 8px;
+        border-radius: 3px;
         margin-top: 20px;
     }
     
@@ -279,7 +279,7 @@ include 'includes/header.php';
         background: var(--primary);
         color: var(--white);
         text-decoration: none;
-        border-radius: 50px;
+        border-radius: 5px;
         font-weight: 700;
         font-size: 16px;
         transition: all 0.3s;
@@ -289,7 +289,6 @@ include 'includes/header.php';
     .btn-primary-custom:hover {
         background: var(--primary-dark);
         transform: translateY(-3px);
-        box-shadow: 0 10px 30px rgba(220, 20, 60, 0.3);
     }
     
     .btn-secondary-custom {
@@ -297,7 +296,7 @@ include 'includes/header.php';
         background: var(--white);
         color: var(--text-dark);
         text-decoration: none;
-        border-radius: 50px;
+        border-radius: 5px;
         font-weight: 700;
         font-size: 16px;
         border: 2px solid var(--border);
@@ -311,10 +310,11 @@ include 'includes/header.php';
     }
     
     .whatsapp-contact {
-        background: #25D366;
-        color: white;
-        padding: 20px;
-        border-radius: 12px;
+        background: var(--white);
+        color: #20BA5A;
+        padding: 15px;
+        border-radius: 3px;
+        border: 2px solid #20BA5A;
         margin: 30px 0;
         display: flex;
         align-items: center;
@@ -327,8 +327,8 @@ include 'includes/header.php';
     
     .whatsapp-contact:hover {
         background: #20BA5A;
+        color: var(--white);
         transform: translateY(-3px);
-        box-shadow: 0 10px 30px rgba(37, 211, 102, 0.3);
     }
     
     .whatsapp-contact svg {
@@ -344,6 +344,7 @@ include 'includes/header.php';
         font-size: 18px;
         font-weight: 700;
         margin-bottom: 3px;
+        letter-spacing: 1px;
     }
     
     .whatsapp-contact p {

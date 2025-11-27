@@ -55,6 +55,14 @@ $total = $subtotal + $costo_envio;
 
 // Procesar comprobante de pago si existe
 
+$comprobante_path = null;
+
+if (isset($_FILES['comprobante']) && $_FILES['comprobante']['error'] === UPLOAD_ERR_OK) {
+    $upload = uploadImage($_FILES['comprobante'], 'comprobantes');
+    if ($upload['success']) {
+        $comprobante_path = $upload['path'];
+    }
+}
 
 try {
     $pdo->beginTransaction();

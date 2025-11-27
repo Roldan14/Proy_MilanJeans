@@ -13,8 +13,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'direccion_tienda' => $_POST['direccion_tienda'] ?? '',
             'costo_envio_lima' => (float)$_POST['costo_envio_lima'],
             'costo_envio_provincia' => (float)$_POST['costo_envio_provincia'],
-            'yape_numero' => sanitize($_POST['yape_numero']),
+            
+            // Yape
+            'yape_empresa' => sanitize($_POST['yape_empresa']),
+            'yape_ruc' => sanitize($_POST['yape_ruc']),
+            'yape_celular' => sanitize($_POST['yape_celular']),
             'yape_nombre' => sanitize($_POST['yape_nombre']),
+            
+            // BCP
+            'bcp_cuenta_ahorro' => sanitize($_POST['bcp_cuenta_ahorro']),
+            'bcp_cuenta_cci' => sanitize($_POST['bcp_cuenta_cci']),
+            'bcp_titular' => sanitize($_POST['bcp_titular']),
+            'bcp_empresa' => sanitize($_POST['bcp_empresa']),
+            'bcp_ruc' => sanitize($_POST['bcp_ruc']),
+            'bcp_celular' => sanitize($_POST['bcp_celular']),
+            
             'facebook_url' => $_POST['facebook_url'] ?? '',
             'instagram_url' => $_POST['instagram_url'] ?? '',
             'whatsapp_numero' => sanitize($_POST['whatsapp_numero'] ?? ''),
@@ -29,6 +42,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 ON DUPLICATE KEY UPDATE valor = ?
             ");
             $stmt->execute([$clave, $valor, $valor]);
+        }
+        
+        // Subir QR de Yape si existe
+        if (isset($_FILES['yape_qr']) && $_FILES['yape_qr']['error'] === UPLOAD_ERR_OK) {
+            $upload = uploadImage($_FILES['yape_qr'], 'config');
+            if ($upload['success']) {
+                // Eliminar QR anterior si existe
+                $qrActual = getConfig('yape_qr');
+                if ($qrActual) {
+                    deleteImage($qrActual);
+                }
+                
+                $stmt = $pdo->prepare("
+                    INSERT INTO configuracion (clave, valor) 
+                    VALUES ('yape_qr', ?) 
+                    ON DUPLICATE KEY UPDATE valor = ?
+                ");
+                $stmt->execute([$upload['path'], $upload['path']]);
+            }
         }
         
         // Subir logo si existe
@@ -392,32 +424,115 @@ $config = [
                         </div>
                     </div>
                     
-                    <!-- Información de Yape -->
-                    <div class="config-card">
-                        <h2>
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <rect x="5" y="2" width="14" height="20" rx="2" ry="2"/>
-                                <line x1="12" y1="18" x2="12.01" y2="18"/>
-                            </svg>
-                            Información de Yape
-                        </h2>
-                        
-                        <div class="info-box">
-                            <p>Esta información se mostrará a los clientes para que puedan realizar pagos por Yape.</p>
-                        </div>
-                        
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label>Número de Yape <span class="required">*</span></label>
-                                <input type="text" name="yape_numero" value="<?= htmlspecialchars($config['yape_numero']) ?>" required placeholder="999999999">
-                            </div>
-                            
-                            <div class="form-group">
-                                <label>Nombre del Titular <span class="required">*</span></label>
-                                <input type="text" name="yape_nombre" value="<?= htmlspecialchars($config['yape_nombre']) ?>" required placeholder="Milan Jeans">
-                            </div>
-                        </div>
-                    </div>
+<!-- Información de Yape ACTUALIZADA -->
+<div class="config-card">
+    <h2>
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="5" y="2" width="14" height="20" rx="2" ry="2"/>
+            <line x1="12" y1="18" x2="12.01" y2="18"/>
+        </svg>
+        Información de Yape
+    </h2>
+    
+    <div class="info-box">
+        <p>Esta información se mostrará a los clientes para que puedan realizar pagos por Yape.</p>
+    </div>
+    
+    <div class="form-group">
+        <label>QR de Yape (Imagen)</label>
+        <div class="image-upload-area" onclick="document.getElementById('yapeQrInput').click()">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin: 0 auto 10px; color: var(--gray);">
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                <circle cx="8.5" cy="8.5" r="1.5"/>
+                <polyline points="21 15 16 10 5 21"/>
+            </svg>
+            <p style="color: var(--gray); margin-bottom: 5px;">Haz clic para seleccionar QR de Yape</p>
+            <p style="font-size: 12px; color: var(--gray);">Recomendado: 500x500px, formato PNG</p>
+            <input type="file" id="yapeQrInput" name="yape_qr" accept="image/*" onchange="previewYapeQr(event)">
+        </div>
+        
+        <div class="image-preview" id="yapeQrPreview">
+            <?php if (getConfigValue('yape_qr')): ?>
+                <img src="<?= UPLOAD_URL . getConfigValue('yape_qr') ?>" alt="QR Yape" style="max-width: 250px;">
+            <?php endif; ?>
+        </div>
+    </div>
+    
+    <div class="form-row">
+        <div class="form-group">
+            <label>Empresa <span class="required">*</span></label>
+            <input type="text" name="yape_empresa" value="<?= htmlspecialchars(getConfigValue('yape_empresa', 'Milan Jeans')) ?>" required>
+        </div>
+        
+        <div class="form-group">
+            <label>RUC</label>
+            <input type="text" name="yape_ruc" value="<?= htmlspecialchars(getConfigValue('yape_ruc')) ?>" placeholder="10432612657">
+        </div>
+    </div>
+    
+    <div class="form-row">
+        <div class="form-group">
+            <label>Celular Yape <span class="required">*</span></label>
+            <input type="text" name="yape_celular" value="<?= htmlspecialchars(getConfigValue('yape_celular')) ?>" required placeholder="992 197 621">
+        </div>
+        
+        <div class="form-group">
+            <label>Nombre del Titular <span class="required">*</span></label>
+            <input type="text" name="yape_nombre" value="<?= htmlspecialchars(getConfigValue('yape_nombre')) ?>" required placeholder="Milan Jeans">
+        </div>
+    </div>
+</div>
+
+<!-- Información de BCP NUEVA -->
+<div class="config-card">
+    <h2>
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/>
+            <line x1="1" y1="10" x2="23" y2="10"/>
+        </svg>
+        Información de BCP (Transferencia Bancaria)
+    </h2>
+    
+    <div class="info-box">
+        <p>Esta información se mostrará a los clientes para realizar transferencias bancarias.</p>
+    </div>
+    
+    <div class="form-row">
+        <div class="form-group">
+            <label>Cuenta de Ahorros BCP <span class="required">*</span></label>
+            <input type="text" name="bcp_cuenta_ahorro" value="<?= htmlspecialchars(getConfigValue('bcp_cuenta_ahorro')) ?>" placeholder="515682415807">
+        </div>
+        
+        <div class="form-group">
+            <label>Cuenta CCI BCP <span class="required">*</span></label>
+            <input type="text" name="bcp_cuenta_cci" value="<?= htmlspecialchars(getConfigValue('bcp_cuenta_cci')) ?>" placeholder="00251500682415800752">
+        </div>
+    </div>
+    
+    <div class="form-row">
+        <div class="form-group">
+            <label>Titular de la Cuenta <span class="required">*</span></label>
+            <input type="text" name="bcp_titular" value="<?= htmlspecialchars(getConfigValue('bcp_titular')) ?>" placeholder="Tracy Scamarone">
+        </div>
+        
+        <div class="form-group">
+            <label>Empresa</label>
+            <input type="text" name="bcp_empresa" value="<?= htmlspecialchars(getConfigValue('bcp_empresa', 'Milan Jeans')) ?>" placeholder="Milan Jeans">
+        </div>
+    </div>
+    
+    <div class="form-row">
+        <div class="form-group">
+            <label>RUC</label>
+            <input type="text" name="bcp_ruc" value="<?= htmlspecialchars(getConfigValue('bcp_ruc')) ?>" placeholder="10432612657">
+        </div>
+        
+        <div class="form-group">
+            <label>Celular de Contacto</label>
+            <input type="text" name="bcp_celular" value="<?= htmlspecialchars(getConfigValue('bcp_celular')) ?>" placeholder="+51 923 027 655">
+        </div>
+    </div>
+</div>
                     
                     <!-- Redes Sociales -->
                     <div class="config-card">
@@ -500,5 +615,18 @@ $config = [
             }
         }
     </script>
+    <script>
+function previewYapeQr(event) {
+    const file = event.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const preview = document.getElementById('yapeQrPreview');
+            preview.innerHTML = '<img src="' + e.target.result + '" alt="QR Yape" style="max-width: 250px;">';
+        }
+        reader.readAsDataURL(file);
+    }
+}
+</script>
 </body>
 </html>
